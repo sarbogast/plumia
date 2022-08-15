@@ -13,6 +13,7 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.5
+  auth0_flutter: ^1.0.0-fa.0
 
 dev_dependencies:
   flutter_test:

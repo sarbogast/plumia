@@ -1,3 +1,4 @@
+import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -29,11 +30,37 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  final _auth0 = Auth0(
+    const String.fromEnvironment('AUTH0_DOMAIN'),
+    const String.fromEnvironment('AUTH0_CLIENT_ID'),
+  );
+  UserProfile? _loggedInUser;
+  String? _chainId;
+  String? _address;
 
-  void _incrementCounter() {
+  Future<void> _login() async {
+    final credentials = await _auth0
+        .webAuthentication()
+        .login(scheme: const String.fromEnvironment('AUTH0_SCHEME'));
     setState(() {
-      _counter++;
+      _loggedInUser = credentials.user;
+      final decodedSubject = Uri.decodeFull(_loggedInUser!.sub);
+      final elements = decodedSubject.split(':');
+      if (elements[0] == 'oauth2|siwe|eip155') {
+        _chainId = elements[1];
+        _address = elements[2];
+      }
+    });
+  }
+
+  Future<void> _logout() async {
+    await _auth0
+        .webAuthentication()
+        .logout(scheme: const String.fromEnvironment('AUTH0_SCHEME'));
+    setState(() {
+      _loggedInUser = null;
+      _chainId = null;
+      _address = null;
     });
   }
 
@@ -45,22 +72,25 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
+          children: [
+            if (_loggedInUser == null)
+              ElevatedButton(
+                onPressed: _login,
+                child: const Text('Login'),
+              ),
+            if (_loggedInUser != null)
+              ElevatedButton(
+                onPressed: _logout,
+                child: const Text('Log out'),
+              ),
+            if (_loggedInUser != null)
+              Text(
+                'Logged in as ${Uri.decodeFull(_loggedInUser!.sub)}',
+              ),
+            if (_chainId != null) Text('Chain ID: $_chainId'),
+            if (_address != null) Text('Address: $_address'),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
       ),
     );
   }
