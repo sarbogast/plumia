@@ -60,12 +60,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  Image.asset(
+                    'assets/images/logo-image-transparent.png',
+                    width: 300,
+                  ),
+                  const SizedBox(height: 32),
                   Text(
                     'If you already have a profile in ProofOfHumanity',
                     style: Theme.of(context).textTheme.headline6,
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 32),
                   ElevatedButton(
                     onPressed: () => _login(context),
                     child: Text(
