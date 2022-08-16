@@ -12,26 +12,45 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Plumia'),
+        actions: [
+          if (session.isLoggedIn)
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () {
+                session.logout();
+              },
+            ),
+        ],
       ),
       body: Center(
-        child: Column(
-          children: [
-            if (!session.isAuthenticated)
-              ElevatedButton(
-                onPressed: session.login,
-                child: const Text('Login'),
+        child: !session.isLoggedIn
+            ? Center(
+                child: ElevatedButton(
+                  onPressed: session.login,
+                  child: const Text('Login'),
+                ),
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Image.network(
+                    session.pohProfile!.photoUrl,
+                    fit: BoxFit.fill,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    session.pohProfile!.displayName,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headline5,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    session.pohProfile!.address,
+                    style: Theme.of(context).textTheme.bodySmall,
+                    textAlign: TextAlign.center,
+                  )
+                ],
               ),
-            if (session.isAuthenticated)
-              ElevatedButton(
-                onPressed: session.logout,
-                child: const Text('Log out'),
-              ),
-            if (session.isAuthenticated)
-              Text(
-                'Logged in with address ${session.address} on network ${session.network?.name}',
-              ),
-          ],
-        ),
       ),
     );
   }
