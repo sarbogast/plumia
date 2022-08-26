@@ -25,8 +25,11 @@ class Session extends ChangeNotifier {
 
   Future<void> login() async {
     _authenticatedCredentials = await _auth0.webAuthentication().login(
-          scheme: auth0Scheme,
-        );
+      scheme: auth0Scheme,
+      parameters: {
+        'connection': 'siwe',
+      },
+    );
     final decodedSubject = Uri.decodeFull(_authenticatedCredentials!.user.sub);
     final oAuthElements = decodedSubject.split('|');
     final identifier = oAuthElements[oAuthElements.length - 1];
